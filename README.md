@@ -22,13 +22,12 @@ Customers: Customer ID, Name, Email, Phone, Address, City, Country, Loyalty Card
 
 When do people buy? → busiest days/hours, seasonal trends
 
-How much do they spend? → AOV, holiday spikes
+How much do they spend? → AOV, holiday spikes, Standard Deviation in Country
 
 Which price ranges sell? → budget vs premium by region
 
 What do people buy? → top coffee types, roast, size, revenue contributors
 
-Who are the customers? → repeat vs new, loyalty card impact, regional preferences
 
 # Data Cleaning & Preparation
 Removed duplicates & empty columns
@@ -52,8 +51,6 @@ A dedicated **Date Table** was created in Power Query to support time-based anal
 # Key Measures:
 ## 🛠 Modeling & Measures
 
-**Best Practice:** Use **Measures** over Calculated Columns for scalability and performance.  
-
 ### Key DAX Measures
 
 - **Total Sales:**  
@@ -63,49 +60,27 @@ Total Profit:
 
 Total Gross Profit = SUM(Orders[Profit])
 
-
-Profit %:
-
 Profit % = DIVIDE(
     SUMX(Orders, Orders[Quantity] * RELATED(Products[Profit])),
     SUMX(Orders, Orders[Quantity] * RELATED(Products[Unit Price]))
 )
 
-
-Average Order Value (AOV):
-
 AOV = DIVIDE([Total Sales], DISTINCTCOUNT(Orders[Order ID]))
-
-
-Gross Profit %:
 
 Gross Profit % = DIVIDE([Total Profit], [Total Sales])
 
-
-Number of Orders:
-
 Number of Orders = COUNTROWS(RELATEDTABLE(Orders))
-
-
-Sales Growth %:
 
 Sales Growth % := 
 DIVIDE(
     [Total Sales] - CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date 1'[Date])),
     CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date 1'[Date]))
 ) * 100
-
-
-Weekend Sales:
-
 Weekend Sales := 
 CALCULATE(
     [Total Sales],
     FILTER('Date 1', 'Date 1'[Weekday Name] IN {"Saturday", "Sunday"})
 )
-
-
-Weekend Orders:
 
 Weekend Orders := 
 CALCULATE(
@@ -113,14 +88,9 @@ CALCULATE(
     FILTER('Date 1', 'Date 1'[Weekday Name] IN {"Saturday", "Sunday"})
 )
 
-
-Median Order Value:
-
 Median Order Value := MEDIANX(VALUES(Orders[Order ID]), [Total Sales])
 
-
 Repeat Customer (Calculated Column):
-
 Repeat Customer = 
 IF(
     CALCULATE(COUNTROWS(Orders), FILTER(Orders, Orders[Customer ID] = Customers[Customer ID])) > 1,
@@ -135,13 +105,9 @@ Average sales by region → Identify top/bottom markets
 
 Standard deviation → Measure sales volatility
 
-Z-Score analysis → Detect outlier regions
-
 Seasonality → Monthly sales trends
 
 Customer spend patterns → Loyalty vs non-loyalty comparison
-
-Correlation → Pack size vs profit margin
 
  # Analysis & Visuals
 
@@ -171,7 +137,7 @@ Correlation → Pack size vs profit margin
   - Seasonal trends  
   - Sales and profit by country  
   - Sales and profit by product  
-  - Pivot Tables - Customer segmentation: Repeat vs New, Loyalty vs Non-Loyalty
+  - Pivot Tables - AOV and Sales SD by country and Loyalty vs Non-Loyalty
 
 
 
